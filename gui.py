@@ -159,11 +159,8 @@ class ImageSheetApp:
 
         try:
             if quarter_mode:
-                # We build a quarter-sized canvas but with swapped dimensions so the layout looks rotated.
                 quarter_w = A4_WIDTH // 2
                 quarter_h = A4_HEIGHT // 2
-
-                # swap dimensions for layout (this is the "rotated" working canvas)
                 work_width = quarter_h
                 work_height = quarter_w
 
@@ -213,16 +210,16 @@ class ImageSheetApp:
                             bottom = min(work_height, y_pos_text + text_height + tile_padding)
                             draw.rectangle([left, top, right, bottom], outline="black", width=max(1, outline_size))
 
-                # rotate the quarter sheet back into normal orientation (now it will be quarter_w x quarter_h)
+                # Outline around quarter
+                draw.rectangle([0, 0, work_width - 1, work_height - 1], outline="black", width=3)
+
                 sheet_rotated = sheet_quarter.rotate(90, expand=True)
 
-                # place the rotated quarter into the top-left quarter of a full A4 sheet
                 full_sheet = Image.new("RGB", (A4_WIDTH, A4_HEIGHT), "white")
                 full_sheet.paste(sheet_rotated, (0, 0))
                 sheet = full_sheet
 
             else:
-                # normal full-sheet mode (unchanged)
                 work_width, work_height = A4_WIDTH, A4_HEIGHT
                 sheet = Image.new("RGB", (work_width, work_height), "white")
                 draw = ImageDraw.Draw(sheet)
@@ -269,6 +266,9 @@ class ImageSheetApp:
                             right = min(work_width, x_pos + image_width + tile_padding)
                             bottom = min(work_height, y_pos_text + text_height + tile_padding)
                             draw.rectangle([left, top, right, bottom], outline="black", width=max(1, outline_size))
+
+                # Outline around full sheet
+                draw.rectangle([0, 0, work_width - 1, work_height - 1], outline="black", width=3)
 
             # save
             if as_pdf:
@@ -372,6 +372,8 @@ class ImageSheetApp:
                             bottom = min(work_height, y_pos_text + text_height + tile_padding)
                             draw.rectangle([left, top, right, bottom], outline="black", width=max(1, outline_size))
 
+                draw.rectangle([0, 0, work_width - 1, work_height - 1], outline="black", width=3)
+
                 sheet_rotated = sheet_quarter.rotate(90, expand=True)
                 full_sheet = Image.new("RGB", (A4_WIDTH, A4_HEIGHT), "white")
                 full_sheet.paste(sheet_rotated, (0, 0))
@@ -424,7 +426,8 @@ class ImageSheetApp:
                             bottom = min(work_height, y_pos_text + text_height + tile_padding)
                             draw.rectangle([left, top, right, bottom], outline="black", width=max(1, outline_size))
 
-            # Show in new window scaled down
+                draw.rectangle([0, 0, work_width - 1, work_height - 1], outline="black", width=3)
+
             preview_win = tk.Toplevel(self.root)
             preview_win.title("Final Sheet Preview")
 
@@ -434,9 +437,8 @@ class ImageSheetApp:
             img_tk = ImageTk.PhotoImage(preview_img)
 
             label = ttk.Label(preview_win, image=img_tk)
-            label.image = img_tk  # keep ref
+            label.image = img_tk
             label.pack()
 
         except Exception as ex:
             messagebox.showerror("Error", f"Failed to generate preview:\n{ex}")
-
